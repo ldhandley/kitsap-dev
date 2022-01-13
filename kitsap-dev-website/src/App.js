@@ -108,20 +108,16 @@ function App() {
     </div>
     </div>
     </Container>
-    <Container style={{width:"100%",maxWidth:"100%",backgroundColor: '#DDDDDD' }}>
-    <div style={{textAlign:"center"}}>        
-    <h2>Let Us Help You With Your Project</h2>
+    <Container style={{paddingTop:30, paddingBottom: 50, width:"100%",maxWidth:"100%",backgroundColor: '#DDDDDD' }}>
+    <div style={{textAlign:"center", position: "relative",}}>        
+    <h2 style={{paddingBottom:20}}>Let Us Help You With Your Project</h2>
     <form id="contact-form" method="post">
-    <h4>Name:</h4>
-    <input type="text" style={{height:35}} placeholder="Enter name here…" className="form-control" /><br/>
-    <h4>Phone:</h4>
-    <input type="phone" style={{height:35}} placeholder="Enter phone number" className="form-control" /><br/>
-    <h4>Email:</h4>
-    <input type="email" style={{height:35}} placeholder="Enter email here…" className="form-control"/><br/>
-    <h4>How can we help you?</h4>
-    <textarea id="description-input" rows="3" placeholder="Enter your message…" className="form-control" style={{width:"100%"}}></textarea><br/>
-    <div className="g-recaptcha" data-sitekey="6Lc7cVMUAAAAAM1yxf64wrmO8gvi8A1oQ_ead1ys" className="form-control" style={{width:"100%"}}></div>
-    <button type="button" onClick={(event) => submitToAPI(event)} className="btn btn-lg" style={{marginTop:20}}>Submit</button>
+    <input type="text" style={{height:35}} placeholder="NAME" className="form-control name" />
+    <img src="./icons/name.svg" style={{position: "absolute", top:0, left:0,  width: 10}}/>
+    <input type="phone" style={{height:35}} placeholder="PHONE" className="form-control phone" />
+    <input type="email" style={{height:35}} placeholder="EMAIL" className="form-control email"/>
+    <textarea id="description-input" rows="3" placeholder="WHAT CAN WE DO FOR YOU?" className="form-control description" style={{width:"100%"}}></textarea><br/>
+    <input type="submit" onClick={(event) => submitToAPI(event)} id="submit" className="btn btn-lg" value="SEND"/>
     </form>
     </div>
     </Container>

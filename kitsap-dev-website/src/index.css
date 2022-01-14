@@ -1,18 +1,9 @@
-#contact-form {
-  width: 502px;
-  font-size: 0.875em;
-  color: var(--black);
-  
-}
-
 @import url(https://fonts.googleapis.com/css?family=Lato:100,300,400);
 
 :root {
   --black: #000000;
   --white: #FFFFFF;
   --lightgray: #DDDDDD;
-}
-body {
 }
 
 header {
@@ -42,4 +33,3 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-

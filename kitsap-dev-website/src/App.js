@@ -3,6 +3,11 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import './App.css';
 import Fade from '@mui/material/Fade';
+import TextField from '@mui/material/TextField';
+import FormControl from '@mui/material/FormControl';
+import Input from '@mui/material/Input';
+import Button from '@mui/material/Button';
+import InputAdornment from '@mui/material/InputAdornment';
 
 function TechLogo(props) {
   // Mouseover effect / tooltip for people to investigate/play with logos
@@ -116,19 +121,37 @@ function App() {
         </div>
       </Container>
     <Container style={{paddingTop:30, paddingBottom: 50, width:"100%",maxWidth:"100%",backgroundColor: '#DDDDDD' }}>
-    <div style={{textAlign:"center", position: "relative",}}>        
-    <h2 style={{paddingBottom:20}}>Let Us Help You With Your Project</h2>
-    <form id="contact-form" method="post">
-    <input type="text" style={{height:35}} placeholder="NAME" className="form-control name" />
-    <img src="./icons/name.svg" style={{position: "absolute", top:0, left:0,  width: 10}}/>
-    <input type="phone" style={{height:35}} placeholder="PHONE" className="form-control phone" />
-    <input type="email" style={{height:35}} placeholder="EMAIL" className="form-control email"/>
-    <textarea id="description-input" rows="3" placeholder="WHAT CAN WE DO FOR YOU?" className="form-control description" style={{width:"100%"}}></textarea><br/>
-    <input type="submit" onClick={(event) => submitToAPI(event)} id="submit" className="btn btn-lg" value="SEND"/>
-    </form>
-    </div>
+      <div style={{textAlign:"center", }}>        
+        <h2 style={{paddingBottom:20}}>Let Us Help You With Your Project</h2>
+        <FormControl id="contact-form" method="post" style={{position: "relative"}}>
+          <Input type="text" style={{height:35}} placeholder="NAME" className="form-control name" startAdornment={
+            <InputAdornment position="start">
+              <img src="./icons/name.svg" style={{ width: 20, paddingRight: 3}}/>
+            </InputAdornment>
+          }/>
+          <Input type="phone" style={{height:35}} placeholder="PHONE" className="form-control phone" startAdornment={
+            <InputAdornment position="start">
+              <img src="./icons/phone.svg" style={{ width: 20, padding: 4}}/>
+            </InputAdornment>
+    }
+    />
+          <Input type="email" style={{height:35}} placeholder="EMAIL" className="form-control email" startAdornment={
+            <InputAdornment position="start">
+              <img src="./icons/email.svg" style={{ width: 20, padding: 3}}/>
+            </InputAdornment>
+    }
+    />
+          <TextField multiline id="description-input" variant="standard" placeholder="WHAT CAN WE DO FOR YOU?" className="form-control description" style={{width:"100%"}} InputProps={{startAdornment: (
+            <InputAdornment position="start">
+              <img src="./icons/description.svg" style={{width: 20, padding: 3}}/>
+            </InputAdornment>
+          )}}
+    />
+          <Button type="submit" onClick={(event) => submitToAPI(event)} id="submit" className="btn btn-lg" variant="outline">SEND</Button>
+        </FormControl>
+      </div>
     </Container>
-    </div>
+  </div>
   );
 }
 

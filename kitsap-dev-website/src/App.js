@@ -12,6 +12,12 @@ import FormControl from '@mui/material/FormControl';
 import Input from '@mui/material/Input';
 import Button from '@mui/material/Button';
 import InputAdornment from '@mui/material/InputAdornment';
+import {
+  BrowserRouter,
+  Routes,
+  Route
+} from "react-router-dom";
+import Demos from "./Demos";
 
 let bannerBackgroundColor = "#513BEB"
 let h2TagColor = "#513BEB"
@@ -186,7 +192,7 @@ const StyledH2 = styled('h2')(({theme}) => ({
     }
   }))
 
-function App() {
+function Homepage() {
   
   return (
     <div className="">
@@ -206,6 +212,18 @@ function App() {
     <ContactFormSection/>
     </div>
   );
+}
+
+function App(){
+  return(
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Homepage />}/>
+      <Route path="demos" element={<Demos />}/>
+    </Routes>
+  </BrowserRouter>
+  )
+
 }
 
 export default App;

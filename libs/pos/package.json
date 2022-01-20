@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "stripe": "^8.199.0"
+  },
+  "name": "pos",
+  "version": "1.0.0",
+  "description": "a library for stripe pos stuff",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "npm test"
+  },
+  "author": "ThoughtSTEM",
+  "license": "ISC"
+}

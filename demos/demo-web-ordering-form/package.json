@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "pos": "file:../../libs/pos"
+  }
+}

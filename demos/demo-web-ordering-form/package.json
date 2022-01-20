@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "pos": "file:../../libs/pos"
+    "pos": "file:pos-1.0.0.tgz"
   }
 }

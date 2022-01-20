@@ -2,9 +2,9 @@
 
 let stripeLib = require('pos').stripeLib
 
-exports.handler = (event, context, callback) => {
+exports.handler = async (event, context, callback) => {
   console.log("Hello world")
-  let sessionPromise = makeOrder({
+  let session = await stripeLib.makeOrder({
     stripeKey: 'sk_test_hQLIUEVv5u9fDAgZeTmnIaZY', 
     lineItems:[
       {
@@ -15,7 +15,5 @@ exports.handler = (event, context, callback) => {
     successURL: 'https://kitsapdev.com/success', 
     cancelURL: 'https://kitsapdev.com/cancel'
   })
-  sessionPromise.then((s)=>{
-    console.log(s.url)
-  })
+  return session.url
 };

@@ -1,0 +1,1 @@
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"docker_image","Source":"registry.terraform.io/terraform-aws-modules/lambda/aws//modules/docker-build","Version":"2.33.2","Dir":".terraform/modules/docker_image/modules/docker-build"}]}

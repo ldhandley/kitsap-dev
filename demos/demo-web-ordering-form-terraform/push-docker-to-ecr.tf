@@ -3,6 +3,14 @@ data "external" "hash" {
   program = ["${path.module}/line_items_to_stripe_checkout_URL_lambda/hash.sh"]
 }
 
+data aws_ecr_image lambda_image {
+ depends_on = [
+   null_resource.push
+ ]
+ repository_name = var.ecr_repo_name
+ image_tag       = "latest"
+}
+
 # Build and push the Docker image whenever the hash changes
 resource "null_resource" "push" {
   triggers = {

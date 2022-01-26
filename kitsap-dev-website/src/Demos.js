@@ -1,12 +1,15 @@
-import {App} from "./demos/demo-web-ordering-form" 
+import {OrderForm} from "./demos/demo-web-ordering-form" 
+import {Page} from "./Components/Page"
 
 function Demos(){
 
 
   return(
     <>
-      <h1>Demos Page</h1>
-      <App/>
+      <Page title="Demos">
+        <h2>Point of Sale Demo</h2>
+        <OrderForm/>
+      </Page>
     </>
   )
 }

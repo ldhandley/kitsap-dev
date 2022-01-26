@@ -18,10 +18,8 @@ import {
   Route
 } from "react-router-dom";
 import Demos from "./Demos";
+import {bannerBackgroundColor, h2TagColor, jumbotronContrastingColor} from "./theme"
 
-let bannerBackgroundColor = "#513BEB"
-let h2TagColor = "#513BEB"
-let jumbotronContrastingColor = "#FFFFFF"
 
 function TechLogo(props) {
   // Mouseover effect / tooltip for people to investigate/play with logos

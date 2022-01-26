@@ -57,51 +57,52 @@ resource "aws_api_gateway_resource" "checkout" {
   path_part   = "checkouts"
 }
 
+# Seems to be working without OPTIONS, but maybe we should put this back in?
 # /checkouts will respond to OPTIONS and POST
 # OPTIONS resources 
-resource "aws_api_gateway_method" "checkout_OPTIONS" {
-  rest_api_id   = aws_api_gateway_rest_api.checkout.id
-  resource_id   = aws_api_gateway_resource.checkout.id
-  http_method   = "OPTIONS"
-  authorization = "NONE"
-}
-
-resource "aws_api_gateway_integration" "checkout_OPTIONS" {
-  rest_api_id = aws_api_gateway_rest_api.checkout.id
-  resource_id = aws_api_gateway_resource.checkout.id
-  http_method = aws_api_gateway_method.checkout_OPTIONS.http_method
-  type = "MOCK"
-}
-
-
-resource "aws_api_gateway_method_response" "checkout_OPTIONS" {
-  depends_on = [aws_api_gateway_method.checkout_OPTIONS]
-  rest_api_id = aws_api_gateway_rest_api.checkout.id
-  resource_id = aws_api_gateway_resource.checkout.id
-  http_method = aws_api_gateway_method.checkout_OPTIONS.http_method
-  status_code = 200
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin" = true,
-    "method.response.header.Access-Control-Allow-Methods" = true,
-    "method.response.header.Access-Control-Allow-Headers" = true
-  }
-  response_models = {
-    "application/json" = "Empty"
-  }
-}
-
-resource "aws_api_gateway_integration_response" "checkout_OPTIONS" {
-  depends_on = [aws_api_gateway_integration.checkout_OPTIONS, aws_api_gateway_method_response.checkout_OPTIONS]
-  rest_api_id = aws_api_gateway_rest_api.checkout.id
-  resource_id = aws_api_gateway_resource.checkout.id
-  http_method = aws_api_gateway_method.checkout_OPTIONS.http_method
-  status_code = 200
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin" = "'*'", # replace with hostname of frontend (CloudFront)
-    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type'",
-    "method.response.header.Access-Control-Allow-Methods" = "'GET, POST'" # remove or add HTTP methods as needed
-  }
-}
+#resource "aws_api_gateway_method" "checkout_OPTIONS" {
+#  rest_api_id   = aws_api_gateway_rest_api.checkout.id
+#  resource_id   = aws_api_gateway_resource.checkout.id
+#  http_method   = "OPTIONS"
+#  authorization = "NONE"
+#}
+#
+#resource "aws_api_gateway_integration" "checkout_OPTIONS" {
+#  rest_api_id = aws_api_gateway_rest_api.checkout.id
+#  resource_id = aws_api_gateway_resource.checkout.id
+#  http_method = aws_api_gateway_method.checkout_OPTIONS.http_method
+#  type = "MOCK"
+#}
+#
+#
+#resource "aws_api_gateway_method_response" "checkout_OPTIONS" {
+#  depends_on = [aws_api_gateway_method.checkout_OPTIONS]
+#  rest_api_id = aws_api_gateway_rest_api.checkout.id
+#  resource_id = aws_api_gateway_resource.checkout.id
+#  http_method = aws_api_gateway_method.checkout_OPTIONS.http_method
+#  status_code = 200
+#  response_parameters = {
+#    "method.response.header.Access-Control-Allow-Origin" = true,
+#    "method.response.header.Access-Control-Allow-Methods" = true,
+#    "method.response.header.Access-Control-Allow-Headers" = true
+#  }
+#  response_models = {
+#    "application/json" = "Empty"
+#  }
+#}
+#
+#resource "aws_api_gateway_integration_response" "checkout_OPTIONS" {
+#  depends_on = [aws_api_gateway_integration.checkout_OPTIONS, aws_api_gateway_method_response.checkout_OPTIONS]
+#  rest_api_id = aws_api_gateway_rest_api.checkout.id
+#  resource_id = aws_api_gateway_resource.checkout.id
+#  http_method = aws_api_gateway_method.checkout_OPTIONS.http_method
+#  status_code = 200
+#  response_parameters = {
+#    "method.response.header.Access-Control-Allow-Origin" = "'*'", # replace with hostname of frontend (CloudFront)
+#    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type'",
+#    "method.response.header.Access-Control-Allow-Methods" = "'GET, POST'" # remove or add HTTP methods as needed
+#  }
+#}
 
 # POST resources 
 resource "aws_api_gateway_method" "checkout_POST" {
@@ -116,7 +117,7 @@ resource "aws_api_gateway_integration" "checkout_POST" {
   resource_id             = aws_api_gateway_resource.checkout.id
   http_method             = aws_api_gateway_method.checkout_POST.http_method
   integration_http_method = "POST"
-  type                    = "AWS_PROXY"
+  type                    = "AWS"
   uri                     = aws_lambda_function.line_items_to_stripe_checkout_URL_lambda.invoke_arn
   depends_on    = [
     aws_api_gateway_method.checkout_POST,
@@ -128,13 +129,18 @@ resource "aws_api_gateway_method_response" "checkout_POST" {
     rest_api_id   = "${aws_api_gateway_rest_api.checkout.id}"
     resource_id   = "${aws_api_gateway_resource.checkout.id}"
     http_method   = "${aws_api_gateway_method.checkout_POST.http_method}"
-    status_code   = "200"
+    status_code   = 200
+    response_models = {
+        "application/json" = "Empty"
+    }
     response_parameters = {
     "method.response.header.Access-Control-Allow-Origin" = true,
     "method.response.header.Access-Control-Allow-Methods" = true,
     "method.response.header.Access-Control-Allow-Headers" = true
   }
-    depends_on = [aws_api_gateway_method.checkout_POST]
+    depends_on = [aws_api_gateway_method.checkout_POST,
+                  aws_api_gateway_integration.checkout_POST
+                    ]
 }
 
 
@@ -179,6 +185,14 @@ resource "aws_api_gateway_deployment" "checkout" {
 
   lifecycle {
     create_before_destroy = true
+  }
+
+  depends_on=[aws_api_gateway_rest_api.checkout,
+              aws_api_gateway_method.checkout_POST,
+              aws_api_gateway_integration.checkout_POST]
+  
+  variables = {
+    deployed_at = "${timestamp()}"
   }
 }
 

@@ -4,16 +4,12 @@ let stripeLib = require('pos').stripeLib
 
 exports.handler = async (event, context, callback) => {
   console.log("Hello world")
+  console.log(event)
   let session = await stripeLib.makeOrder({
     stripeKey: 'sk_test_hQLIUEVv5u9fDAgZeTmnIaZY', 
-    lineItems:[
-      {
-        price: 'price_0KK7zr7hDggklt0HELzc4Wq1',
-        quantity: 1,
-      }
-    ],
+    lineItems: event.lineItems,
     successURL: 'https://kitsapdev.com/success', 
     cancelURL: 'https://kitsapdev.com/cancel'
   })
-  return session.url
+  return {checkoutURL: session.url, event: event}
 };

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import { useState } from 'react';
+import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import CardMedia from '@mui/material/CardMedia';
@@ -20,59 +21,85 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-export function OrderForm(){
-  const [response,setResponse] = useState("");
-  const [pizzaSize, setPizzaSize] = useState(0);
+/*  TODO:
+  * When you add to order, some kind of Toast that alerts you that you can checkout below
+  * Show price in the line items
+  * Sort line items by price 
+  * Show total price
+  * Add new products to test Stripe acct
+  * Comments section before order button
+  * Personal details section (deliver/takeout, address, phone, email, name)
+  * Order now button that takes you to Stripe
+  * When customer returns from Stripe, a success page
+  *  */
 
-  function GroupedButtons() {
-    const [counter, setCounter] = useState(0);
+//TODO: Should we look this up via an API gateway call? Or should we have this in some JSON file?
+function lookupStripePriceByName(n){
+  switch (n) {
+    case "Pepperoni Pizza - 10 inches":
+      return 'price_0KMh6T7hDggklt0HSHAXx4An';
+    case "Pepperoni Pizza - 14 inches":
+      return 'price_0KMgyf7hDggklt0HcdYom3RF';
+    case "Pepperoni Pizza - 18 inches":
+      return 'price_0KMh7M7hDggklt0HmC25Dx6T';
+  }
+}
 
-    let handleIncrement = () => {
-      setCounter(count => count + 1);
-    };
+function stripify(items){
+  return items.map(i=>{
+    return { price: lookupStripePriceByName(i.name),
+      quantity: i.quantity }})
+}
 
-    let handleDecrement = () => {
-      setCounter(count => count - 1);
-    };
-      const displayCounter = counter > 0;
-
-      return (
-        <ButtonGroup size="small" aria-label="small outlined button group">
-          <Button onClick={handleIncrement}>+</Button>
-          {displayCounter && <Button disabled>{counter}</Button>}
-          {displayCounter && <Button onClick={handleDecrement}>-</Button>}
-        </ButtonGroup>
-      );
+//Count # of items with same name
+//[{Name: ..., Price: ...}] => [{Name: ..., Quantity: ..., Price: ...}]
+function coalesce(items){
+  let counts = {}; //{"Pepperoni Pizza - 10 inches": {quantity: 2, price: 9.99, name: "Pepperoni Pizza - 10 inches"}, ...}
+  for(let i of items){
+    if(counts[i.name]){
+      counts[i.name].quantity++
+    } else{
+      counts[i.name] = {name:i.name, price:i.price, quantity:1}
+    }
   }
 
-  function MenuItemCard(){
-    const [expanded, setExpanded] = React.useState(false);
+  return Object.values(counts)
+}
 
-    const handleExpandClick = () => {
-      setExpanded(!expanded);
-    };
+function QuantitySelector(props) {
 
-    const handleChange = (event) => {
-      setPizzaSize(event.target.value);
-    };
+  return (
+    <ButtonGroup size="small" aria-label="small outlined button group">
+      <Button onClick={props.onMinusClicked}>-</Button>
+      <Button style={{color: "black", borderColor: "black"}} disabled>{props.quantity}</Button>
+      <Button onClick={props.onPlusClicked}>+</Button>
+    </ButtonGroup>
+  );
+}
+  
+function MenuItemCard(props){
+  const name = "Pepperoni Pizza"
+  const price = (pizzaSize) => {
+    switch (pizzaSize) {
+      case 10:
+        return 9.99;
+      case 14:
+        return 12.99;
+      case 18:
+        return 15.99;
+    }
+  }
+  const [pizzaSize, setPizzaSize] = useState(10);
 
-    return(
+  const handleChange = (event) => {
+    setPizzaSize(event.target.value);
+  };
+
+  return(
     <Card sx={{ maxWidth: 345 }}>
-      <CardHeader
-        avatar={
-          <Avatar sx={{ bgcolor: red[500] }} aria-label="menu-item">
-            +
-          </Avatar>
-        }
-        action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
-        }
-        title="Pepperoni Pizza"
-        subheader="Our delicious cheese pizza with pepperoni."
-      />
       <CardMedia
         component="img"
         height="194"
@@ -80,79 +107,121 @@ export function OrderForm(){
         alt="Pepperoni Pizza"
       />
       <CardContent>
+        <Typography variant="h6">{name}</Typography>
         <Typography variant="body2" color="text.secondary">
           This pepperoni pizza is perfecto!
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={pizzaSize}
-          label="Size of Pizza"
-          onChange={handleChange}
-        >
-          <MenuItem value={10}>10 inch</MenuItem>
-          <MenuItem value={14}>14 inch</MenuItem>
-          <MenuItem value={18}>18 inch</MenuItem>
-        </Select>
-        <GroupedButtons/>
-        <IconButton aria-label="add to favorites">
-          <FavoriteIcon />
-        </IconButton>
-        <IconButton aria-label="share">
-          <ShareIcon />
-        </IconButton>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={pizzaSize}
+              label="Size of Pizza"
+              onChange={handleChange}
+              style={{height: 35}}
+            >
+              <MenuItem value={10}>10 inch</MenuItem>
+              <MenuItem value={14}>14 inch</MenuItem>
+              <MenuItem value={18}>18 inch</MenuItem>
+            </Select>
+          </Grid>
+          <Grid item xs={6}>
+            <Button variant="text" onClick={()=>props.addToCart({name: name + " - " + pizzaSize + " inches", price: price(pizzaSize)})}><ShoppingCartIcon/> Add to Order</Button>
+          </Grid>
+        </Grid>
       </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent>
-          <Typography paragraph>Method:</Typography>
-          <Typography paragraph>
-            Heat 1/2 cup of the broth in a pot until simmering, add saffron and set
-            aside for 10 minutes.
-          </Typography>
-          <Typography paragraph>
-            Heat oil in a (14- to 16-inch) paella pan or a large, deep skillet over
-            medium-high heat. Add chicken, shrimp and chorizo, and cook, stirring
-            occasionally until lightly browned, 6 to 8 minutes. Transfer shrimp to a
-            large plate and set aside, leaving chicken and chorizo in the pan. Add
-            pimentón, bay leaves, garlic, tomatoes, onion, salt and pepper, and cook,
-            stirring often until thickened and fragrant, about 10 minutes. Add
-            saffron broth and remaining 4 1/2 cups chicken broth; bring to a boil.
-          </Typography>
-          <Typography paragraph>
-            Add rice and stir very gently to distribute. Top with artichokes and
-            peppers, and cook without stirring, until most of the liquid is absorbed,
-            15 to 18 minutes. Reduce heat to medium-low, add reserved shrimp and
-            mussels, tucking them down into the rice, and cook again without
-            stirring, until mussels have opened and rice is just tender, 5 to 7
-            minutes more. (Discard any mussels that don’t open.)
-          </Typography>
-          <Typography>
-            Set aside off of the heat to let rest for 10 minutes, and then serve.
-          </Typography>
-        </CardContent>
-      </Collapse>
     </Card>
-    )
+  )
+}
+
+function CartLineItem(props){
+
+
+  return(
+    <>
+      <li>
+        <Grid container spacing={2}>
+          <Grid item xs={5}>
+            {props.name}
+          </Grid>
+          <Grid item xs={3}>
+            <QuantitySelector quantity={props.quantity} 
+              onPlusClicked={()=>props.addByName(props.name)}
+              onMinusClicked={()=>props.removeByName(props.name)}
+            />
+          </Grid>
+          <Grid item xs={3}>
+            <DeleteIcon/> 
+          </Grid>
+        </Grid>
+      </li>
+    </>
+  )
+}
+
+function Cart(props){
+
+
+  return(
+    <>
+      <h2>Cart</h2>
+      <ul>
+        {coalesce(props.lineItems).map(e=>{
+          return <CartLineItem {...e} 
+            key={e.name} 
+            addByName={props.addByName} 
+            removeByName={props.removeByName}/>
+        })}
+      </ul>
+    </>
+  )
+}
+
+export function OrderForm(){
+  const [response,setResponse] = useState("");
+  const [cart,setCart] = useState([]);
+  
+  function addToCart(item){
+    setCart((cart)=>cart.concat(item))
+  }
+
+  function addByName(n){
+    setCart((cart)=>{
+      let itemToDup = cart.find((item)=>item.name == n)
+      return cart.concat(itemToDup)
+    })
+  }
+  
+  function removeByName(n){
+    setCart((cart)=>{
+      let indexToRemove = cart.findIndex((item)=>item.name == n)
+      cart.splice(indexToRemove, 1)
+      return [...cart]
+    })
   }
 
   return(
     <>
-      <MenuItemCard/>
-      <p>CheckoutURL: {response.checkoutURL}</p>
-      <button onClick={()=>{ fetch("https://xn7ikhkbbg.execute-api.us-west-1.amazonaws.com/prod/checkouts",
+      <MenuItemCard addToCart={addToCart}/> 
+      <Cart lineItems={cart} addByName={addByName} removeByName={removeByName}/>
+      <Button variant="contained" onClick={()=>{ fetch("https://xn7ikhkbbg.execute-api.us-west-1.amazonaws.com/prod/checkouts",
         { method:"POST", 
-          body:JSON.stringify({ lineItems: [
+          body:JSON.stringify({ lineItems: stripify(coalesce(cart))
+          /*[
             {
               price: 'price_0KK7zr7hDggklt0HELzc4Wq1',
               quantity: 5,
             }
-          ]})
+          ]*/
+          })
         })
           .then((res) => res.json())
           .then((json) => setResponse(json))
       }}>
-    Order 5 pizzas</button>
+    Checkout</Button>
+    {response.checkoutURL}
     </>)
 }

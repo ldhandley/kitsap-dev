@@ -12,6 +12,7 @@ export function Page(props){
         </Box>
         <Container maxWidth="md">
           {props.children}
+          <div style={{padding:100}}/>
         </Container>
       </Container>
     </div>

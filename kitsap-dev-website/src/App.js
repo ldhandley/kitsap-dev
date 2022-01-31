@@ -17,7 +17,7 @@ import {
   Routes,
   Route
 } from "react-router-dom";
-import Demos from "./Demos";
+import {Demos, WebOrderingFormDemo, WebOrderingFormCancelPageDemo, WebOrderingFormSuccessPageDemo} from "./Demos";
 import {bannerBackgroundColor, h2TagColor, jumbotronContrastingColor} from "./theme"
 
 
@@ -214,12 +214,15 @@ function Homepage() {
 
 function App(){
   return(
-  <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<Homepage />}/>
-      <Route path="demos" element={<Demos />}/>
-    </Routes>
-  </BrowserRouter>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Homepage />}/>
+        <Route path="/demos" element={<Demos />}/>
+        <Route path="/demos/web-ordering-form" element={<WebOrderingFormDemo />}/>
+        <Route path="/demos/web-ordering-form/success" element={<WebOrderingFormSuccessPageDemo/>}/>
+        <Route path="/demos/web-ordering-form/cancel" element={<WebOrderingFormCancelPageDemo/>}/>
+      </Routes>
+    </BrowserRouter>
   )
 
 }

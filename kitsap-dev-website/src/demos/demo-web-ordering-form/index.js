@@ -23,6 +23,15 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import DeleteIcon from '@mui/icons-material/Delete';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import TextField from '@mui/material/TextField';
+import Snackbar from '@mui/material/Snackbar';
 
 /*  TODO:
   * When you add to order, some kind of Toast that alerts you that you can checkout below
@@ -81,6 +90,7 @@ function QuantitySelector(props) {
 }
   
 function MenuItemCard(props){
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const name = "Pepperoni Pizza"
   const price = (pizzaSize) => {
     switch (pizzaSize) {
@@ -96,6 +106,14 @@ function MenuItemCard(props){
 
   const handleChange = (event) => {
     setPizzaSize(event.target.value);
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSnackbarOpen(false);
   };
 
   return(
@@ -129,7 +147,15 @@ function MenuItemCard(props){
             </Select>
           </Grid>
           <Grid item xs={6}>
-            <Button variant="text" onClick={()=>props.addToCart({name: name + " - " + pizzaSize + " inches", price: price(pizzaSize)})}><ShoppingCartIcon/> Add to Order</Button>
+            <Button variant="text" onClick={()=>{
+              props.addToCart({name: name + " - " + pizzaSize + " inches", price: price(pizzaSize)})
+              setSnackbarOpen(true) 
+            }}><ShoppingCartIcon/> Add to Order</Button>
+            <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleClose}>
+              <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                This is a success message!
+              </Alert>
+            </Snackbar>
           </Grid>
         </Grid>
       </CardActions>
@@ -187,7 +213,8 @@ function Cart(props){
 }
 
 function CheckoutButton(props){
-  const [response,setResponse] = useState("");
+  const [response, setResponse] = useState("");
+  const [waiting, setWaiting] = useState(false);
 
   useEffect(()=>{
     if(response.checkoutURL) window.location = response.checkoutURL 
@@ -196,21 +223,95 @@ function CheckoutButton(props){
   return(
     props.lineItems.length != 0?
       <>
-        <Button variant="contained" onClick={()=>{ fetch("https://xn7ikhkbbg.execute-api.us-west-1.amazonaws.com/prod/checkouts",
-          { method:"POST", 
-            body:JSON.stringify({ 
-              lineItems: stripify(coalesce(props.lineItems)),
-              successURL: "http://localhost:3000/demos/web-ordering-form/success",
-              cancelURL: "http://localhost:3000/demos/web-ordering-form/cancel"
+        {waiting? <CircularProgress/>
+        : <>
+          {response.errorMessage? <Alert severity="error" style={{marginBottom: 10}}>{response.errorMessage}</Alert>:""}
+            <Button variant="contained" onClick={()=>{ 
+          setWaiting(true);
+          fetch("https://xn7ikhkbbg.execute-api.us-west-1.amazonaws.com/prod/checkouts",
+            { method:"POST", 
+              body:JSON.stringify({ 
+                lineItems: stripify(coalesce(props.lineItems)),
+                successPage: "http://localhost:3000/demos/web-ordering-form/success",
+                cancelPage: "http://localhost:3000/demos/web-ordering-form/cancel"
+              })
             })
-          })
             .then((res) => res.json())
-            .then((json) => setResponse(json))
+            .then((json) => {
+              setResponse(json);
+              setWaiting(false);
+            })
         }}>
           Checkout</Button>
-        {response.checkoutURL}
+          </>}
       </>
     :""
+  )
+}
+
+function CustomerInformation(){
+  const [delivery, setDelivery] = useState(false);
+ 
+ const handleDeliveryChange = (event) => {
+    if(event.target.value == "Delivery"){
+      setDelivery(true);
+    }  
+    if(event.target.value == "Pickup"){
+      setDelivery(false);
+    }  
+  };
+
+  return(
+    <>
+      <div style={{padding:10}}/>
+          <FormControl>
+            <FormLabel id="demo-radio-buttons-group-label">Delivery or Pickup?</FormLabel>
+            <RadioGroup
+              aria-labelledby="demo-radio-buttons-group-label"
+              defaultValue="Pickup"
+              name="radio-buttons-group"
+              onChange={handleDeliveryChange}
+            >
+              <FormControlLabel value="Delivery" control={<Radio />} label="Delivery" />
+              <FormControlLabel value="Pickup" control={<Radio />} label="Pickup" />
+            </RadioGroup>
+          </FormControl>
+      <div>
+        <FormControl style={{width:"100%"}}>
+            <TextField
+              id="customer-name-field"
+              label="Your Name"
+              autoComplete="name"
+              variant="standard"
+            />
+            <TextField
+              id="customer-phone-field"
+              label="Your Phone #"
+              autoComplete="mobile"
+              variant="standard"
+            />
+          {delivery? <><TextField
+            id="customer-address-line-1-field"
+            label="Delivery Address Line 1"
+            autoComplete="address-line1"
+            variant="standard"
+          />
+            <TextField
+              id="customer-address-line-2-field"
+              label="Delivery Address Line 2"
+              autoComplete="address-line2"
+              variant="standard"
+            /></>:""}
+            <TextField
+              style={{marginTop:15}}
+              id=""
+              label="Special Instructions"
+              multiline
+              rows={3}
+            />
+        </FormControl>
+        </div>
+      </>
   )
 }
 
@@ -251,6 +352,7 @@ export function OrderForm(){
     <>
       <MenuItemCard addToCart={addToCart}/> 
       <Cart lineItems={cart} addByName={addByName} removeByName={removeByName}/>
+      <CustomerInformation/>
       <CheckoutButton lineItems={cart}/>
     </>)
 }

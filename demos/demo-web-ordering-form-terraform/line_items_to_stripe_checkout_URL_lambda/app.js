@@ -8,8 +8,8 @@ exports.handler = async (event, context, callback) => {
   let session = await stripeLib.makeOrder({
     stripeKey: 'sk_test_hQLIUEVv5u9fDAgZeTmnIaZY', 
     lineItems: event.lineItems,
-    successURL: 'https://kitsapdev.com/success', 
-    cancelURL: 'https://kitsapdev.com/cancel'
+    successURL: event.successPage, 
+    cancelURL: event.cancelPage 
   })
   return {checkoutURL: session.url, event: event}
 };

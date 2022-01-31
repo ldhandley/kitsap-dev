@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
@@ -143,7 +143,7 @@ function CartLineItem(props){
   return(
     <>
       <li>
-        <Grid container spacing={2}>
+        <Grid container spacing={2} alignItems="center">
           <Grid item xs={5}>
             {props.name}
           </Grid>
@@ -154,7 +154,10 @@ function CartLineItem(props){
             />
           </Grid>
           <Grid item xs={3}>
-            <DeleteIcon/> 
+            <IconButton color="primary" aria-label="remove line item from cart" component="span"
+              onClick={()=>props.removeByName(props.name, {all: true})}>
+              <DeleteIcon /> 
+            </IconButton>
           </Grid>
         </Grid>
       </li>
@@ -164,24 +167,54 @@ function CartLineItem(props){
 
 function Cart(props){
 
-
   return(
     <>
-      <h2>Cart</h2>
-      <ul>
-        {coalesce(props.lineItems).map(e=>{
-          return <CartLineItem {...e} 
-            key={e.name} 
-            addByName={props.addByName} 
-            removeByName={props.removeByName}/>
-        })}
-      </ul>
+      {props.lineItems.length !== 0 ? 
+        <>
+          <h2>Cart</h2>
+          <ul>
+            {coalesce(props.lineItems).map(e=>{
+              return <CartLineItem {...e} 
+                key={e.name} 
+                addByName={props.addByName} 
+                removeByName={props.removeByName}/>
+            })}
+          </ul>
+        </>
+        :""}
     </>
   )
 }
 
-export function OrderForm(){
+function CheckoutButton(props){
   const [response,setResponse] = useState("");
+
+  useEffect(()=>{
+    if(response.checkoutURL) window.location = response.checkoutURL 
+  },[response.checkoutURL])
+
+  return(
+    props.lineItems.length != 0?
+      <>
+        <Button variant="contained" onClick={()=>{ fetch("https://xn7ikhkbbg.execute-api.us-west-1.amazonaws.com/prod/checkouts",
+          { method:"POST", 
+            body:JSON.stringify({ 
+              lineItems: stripify(coalesce(props.lineItems)),
+              successURL: "http://localhost:3000/demos/web-ordering-form/success",
+              cancelURL: "http://localhost:3000/demos/web-ordering-form/cancel"
+            })
+          })
+            .then((res) => res.json())
+            .then((json) => setResponse(json))
+        }}>
+          Checkout</Button>
+        {response.checkoutURL}
+      </>
+    :""
+  )
+}
+
+export function OrderForm(){
   const [cart,setCart] = useState([]);
   
   function addToCart(item){
@@ -195,33 +228,29 @@ export function OrderForm(){
     })
   }
   
-  function removeByName(n){
-    setCart((cart)=>{
-      let indexToRemove = cart.findIndex((item)=>item.name == n)
-      cart.splice(indexToRemove, 1)
-      return [...cart]
-    })
+  function removeByName(n, options){
+    options = options || {all: false}
+    if(options.all){
+      setCart((cart)=>{
+        let newCart = cart.filter((item)=>{
+          return item.name !== n
+        })
+        return newCart
+      })
+    } 
+    else{
+      setCart((cart)=>{
+        let indexToRemove = cart.findIndex((item)=>item.name == n)
+        cart.splice(indexToRemove, 1)
+        return [...cart]
+      })
+    }
   }
 
   return(
     <>
       <MenuItemCard addToCart={addToCart}/> 
       <Cart lineItems={cart} addByName={addByName} removeByName={removeByName}/>
-      <Button variant="contained" onClick={()=>{ fetch("https://xn7ikhkbbg.execute-api.us-west-1.amazonaws.com/prod/checkouts",
-        { method:"POST", 
-          body:JSON.stringify({ lineItems: stripify(coalesce(cart))
-          /*[
-            {
-              price: 'price_0KK7zr7hDggklt0HELzc4Wq1',
-              quantity: 5,
-            }
-          ]*/
-          })
-        })
-          .then((res) => res.json())
-          .then((json) => setResponse(json))
-      }}>
-    Checkout</Button>
-    {response.checkoutURL}
+      <CheckoutButton lineItems={cart}/>
     </>)
 }

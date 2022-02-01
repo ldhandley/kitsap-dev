@@ -100,7 +100,7 @@ function coalesce(items){
     if(counts[i.name]){
       counts[i.name].quantity++
     } else{
-      counts[i.name] = {name:i.name, price:i.price, quantity:1}
+      counts[i.name] = {...i, quantity:1}
     }
   }
 
@@ -177,12 +177,12 @@ function MenuItemCard(props){
           </Grid>
           <Grid item xs={6}>
             <Button variant="text" onClick={()=>{
-              props.addToCart({name: name + " - " + pizzaSize + " inches", price: price(pizzaSize)})
+              props.addToCart({name: name + " - " + pizzaSize + " inches", price: price(pizzaSize), image: "/demo-images/pepperoni-pizza.jpeg"})
               setSnackbarOpen(true) 
             }}><ShoppingCartIcon/> Add to Order</Button>
             <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleClose}>
               <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                This is a success message!
+                You've ordered an item! Scroll down when ready.
               </Alert>
             </Snackbar>
           </Grid>
@@ -197,9 +197,12 @@ function CartLineItem(props){
 
   return(
     <>
-      <li>
+      <div>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={5}>
+          <Grid item xs={1}>
+            <img src={props.image} width="100%"/>
+          </Grid>
+          <Grid item xs={4}>
             {props.name}
           </Grid>
           <Grid item xs={3}>
@@ -215,7 +218,7 @@ function CartLineItem(props){
             </IconButton>
           </Grid>
         </Grid>
-      </li>
+      </div>
     </>
   )
 }
@@ -226,15 +229,15 @@ function Cart(props){
     <>
       {props.lineItems.length !== 0 ? 
         <>
-          <h2>Cart</h2>
-          <ul>
+          <h2>Order</h2>
+          <div>
             {coalesce(props.lineItems).map(e=>{
               return <CartLineItem {...e} 
                 key={e.name} 
                 addByName={props.addByName} 
                 removeByName={props.removeByName}/>
             })}
-          </ul>
+          </div>
         </>
         :""}
     </>
@@ -246,7 +249,7 @@ function CheckoutButton(props){
   const [waiting, setWaiting] = useState(false);
 
   useEffect(()=>{
-   // if(response.checkoutURL) window.location = response.checkoutURL 
+    if(response.checkoutURL) window.location = response.checkoutURL 
   },[response.checkoutURL])
 
   return(
@@ -346,6 +349,7 @@ function CustomerInformation(props){
               helperText={props.metadata.customerName !== undefined && userInputLooksLikeName(props.metadata.customerName).errors[0]}
               error={props.metadata.customerName !== undefined && !userInputLooksLikeName(props.metadata.customerName).valid} 
             />
+          <div style={{padding: 10}}/>
             <TextField
               id="customer-phone-field"
               label="Your Phone #"
@@ -356,6 +360,7 @@ function CustomerInformation(props){
               helperText={props.metadata.phone !== undefined && userInputLooksLikePhone(props.metadata.phone).errors[0]}
               error={props.metadata.phone !== undefined && !userInputLooksLikePhone(props.metadata.phone).valid} 
             />
+          <div style={{padding: 10}}/>
           {delivery? <><TextField
             id="customer-address-line-1-field"
             label="Delivery Address Line 1"
@@ -366,6 +371,7 @@ function CustomerInformation(props){
               helperText={props.metadata.addressLine1 !== undefined && userInputLooksLikeAddress(props.metadata.addressLine1).errors[0]}
               error={props.metadata.addressLine1 !== undefined && !userInputLooksLikeAddress(props.metadata.addressLine1).valid} 
           />
+          <div style={{padding: 10}}/>
             <TextField
               id="customer-address-line-2-field"
               label="Delivery Address Line 2"
@@ -373,6 +379,7 @@ function CustomerInformation(props){
               variant="standard"
               onChange={fieldChanged("addressLine2")}
             /></>:""}
+          <div style={{padding: 10}}/>
             <TextField
               style={{marginTop:15}}
               id=""
@@ -429,6 +436,7 @@ export function OrderForm(){
       {cart.length === 0? "" : 
         <>
           <CustomerInformation metadata={metadata} setMetadata={setMetadata} metadataComplete={metadataComplete} setMetadataComplete={setMetadataComplete}/>
+          <div style={{padding: 10}}/>
           <CheckoutButton lineItems={cart} metadata={metadata} disabled={!metadataComplete}/>
         </>}
     </>)

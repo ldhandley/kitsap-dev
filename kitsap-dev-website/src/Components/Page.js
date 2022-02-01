@@ -10,10 +10,10 @@ export function Page(props){
         <Box sx={{ backgroundColor:bannerBackgroundColor, backgroundPosition: "center", backgroundSize: "cover" }}>
           <h1 style={{color: jumbotronContrastingColor, margin: 0, marginLeft: 10 }}>{props.title}</h1>
         </Box>
-        <Container maxWidth="md">
-          {props.children}
-          <div style={{padding:100}}/>
-        </Container>
+      </Container>
+      <Container maxWidth="md">
+        {props.children}
+        <div style={{padding:100}}/>
       </Container>
     </div>
   )

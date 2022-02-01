@@ -45,6 +45,35 @@ import Snackbar from '@mui/material/Snackbar';
   * When customer returns from Stripe, a success page
   *  */
 
+function userInputLooksLikeName(n){
+  if(!n) 
+    return {valid: false, errors: ["Name must be provided."]}
+  if(n.length == 0)
+    return {valid: false, errors: ["Name must be provided."]}
+ 
+  return {valid: true, errors: []}
+}
+
+function userInputLooksLikePhone(p){
+  if(!p) 
+    return {valid: false, errors: ["Phone must be provided."]}
+  if(p.replace(/\D/g,"").length < 10) 
+    return {valid: false, errors: ["Phone number must be at least 10 digits long."]}
+  if(p.replace(/[\d\-() ]/g,"").length > 0) 
+    return {valid: false, errors: ["Phone number should only contain digits."]}
+  return {valid: true, errors: []}
+}
+
+function userInputLooksLikeAddress(a){
+  if(!a) 
+    return {valid: false, errors: ["Address must be provided."]}
+  if(a.length == 0)
+    return {valid: false, errors: ["Address must be provided."]}
+ 
+  return {valid: true, errors: []}
+}
+
+
 //TODO: Should we look this up via an API gateway call? Or should we have this in some JSON file?
 function lookupStripePriceByName(n){
   switch (n) {
@@ -217,23 +246,22 @@ function CheckoutButton(props){
   const [waiting, setWaiting] = useState(false);
 
   useEffect(()=>{
-    if(response.checkoutURL) window.location = response.checkoutURL 
+   // if(response.checkoutURL) window.location = response.checkoutURL 
   },[response.checkoutURL])
 
   return(
-    props.lineItems.length != 0?
-      <>
-        {waiting? <CircularProgress/>
+        waiting? <CircularProgress/>
         : <>
           {response.errorMessage? <Alert severity="error" style={{marginBottom: 10}}>{response.errorMessage}</Alert>:""}
-            <Button variant="contained" onClick={()=>{ 
+          <Button variant="contained" disabled={props.disabled || props.lineItems.length === 0} onClick={()=>{ 
           setWaiting(true);
           fetch("https://xn7ikhkbbg.execute-api.us-west-1.amazonaws.com/prod/checkouts",
             { method:"POST", 
               body:JSON.stringify({ 
                 lineItems: stripify(coalesce(props.lineItems)),
                 successPage: "http://localhost:3000/demos/web-ordering-form/success",
-                cancelPage: "http://localhost:3000/demos/web-ordering-form/cancel"
+                cancelPage: "http://localhost:3000/demos/web-ordering-form/cancel",
+                metadata: props.metadata || {}
               })
             })
             .then((res) => res.json())
@@ -243,23 +271,53 @@ function CheckoutButton(props){
             })
         }}>
           Checkout</Button>
-          </>}
-      </>
-    :""
+          </>
   )
 }
 
-function CustomerInformation(){
+function CustomerInformation(props){
   const [delivery, setDelivery] = useState(false);
- 
- const handleDeliveryChange = (event) => {
+
+  const isMetadataComplete = (metadata, delivery) => {
+    if(delivery){
+      if(userInputLooksLikeName(metadata.customerName).valid && 
+        userInputLooksLikePhone(metadata.phone).valid && 
+        userInputLooksLikeAddress(metadata.addressLine1).valid){
+        props.setMetadataComplete(true);
+      }
+      else {
+        props.setMetadataComplete(false);
+      }
+    }
+    else{
+      if(userInputLooksLikeName(metadata.customerName).valid && 
+        userInputLooksLikePhone(metadata.phone).valid){
+        props.setMetadataComplete(true);
+      }
+      else {
+        props.setMetadataComplete(false);
+      }
+    }
+  }
+
+  const handleDeliveryChange = (event) => {
     if(event.target.value == "Delivery"){
       setDelivery(true);
+      isMetadataComplete(props.metadata, true)
     }  
     if(event.target.value == "Pickup"){
       setDelivery(false);
+      isMetadataComplete(props.metadata, false)
     }  
   };
+
+  const fieldChanged = (field) => {
+    return (e)=>{ 
+      let metadata = {...props.metadata, [field]: e.target.value} 
+      props.setMetadata(metadata)
+      isMetadataComplete(metadata, delivery)
+    }
+  }
 
   return(
     <>
@@ -283,24 +341,37 @@ function CustomerInformation(){
               label="Your Name"
               autoComplete="name"
               variant="standard"
+              required
+              onChange={fieldChanged("customerName")}
+              helperText={props.metadata.customerName !== undefined && userInputLooksLikeName(props.metadata.customerName).errors[0]}
+              error={props.metadata.customerName !== undefined && !userInputLooksLikeName(props.metadata.customerName).valid} 
             />
             <TextField
               id="customer-phone-field"
               label="Your Phone #"
               autoComplete="mobile"
+              required
               variant="standard"
+              onChange={fieldChanged("phone")}
+              helperText={props.metadata.phone !== undefined && userInputLooksLikePhone(props.metadata.phone).errors[0]}
+              error={props.metadata.phone !== undefined && !userInputLooksLikePhone(props.metadata.phone).valid} 
             />
           {delivery? <><TextField
             id="customer-address-line-1-field"
             label="Delivery Address Line 1"
             autoComplete="address-line1"
+            required
             variant="standard"
+              onChange={fieldChanged("addressLine1")}
+              helperText={props.metadata.addressLine1 !== undefined && userInputLooksLikeAddress(props.metadata.addressLine1).errors[0]}
+              error={props.metadata.addressLine1 !== undefined && !userInputLooksLikeAddress(props.metadata.addressLine1).valid} 
           />
             <TextField
               id="customer-address-line-2-field"
               label="Delivery Address Line 2"
               autoComplete="address-line2"
               variant="standard"
+              onChange={fieldChanged("addressLine2")}
             /></>:""}
             <TextField
               style={{marginTop:15}}
@@ -308,6 +379,7 @@ function CustomerInformation(){
               label="Special Instructions"
               multiline
               rows={3}
+              onChange={fieldChanged("specialInstructions")}
             />
         </FormControl>
         </div>
@@ -316,8 +388,10 @@ function CustomerInformation(){
 }
 
 export function OrderForm(){
-  const [cart,setCart] = useState([]);
-  
+  const [cart, setCart] = useState([]);
+  const [metadata, setMetadata] = useState({});
+  const [metadataComplete, setMetadataComplete] = useState(false);
+
   function addToCart(item){
     setCart((cart)=>cart.concat(item))
   }
@@ -352,7 +426,10 @@ export function OrderForm(){
     <>
       <MenuItemCard addToCart={addToCart}/> 
       <Cart lineItems={cart} addByName={addByName} removeByName={removeByName}/>
-      <CustomerInformation/>
-      <CheckoutButton lineItems={cart}/>
+      {cart.length === 0? "" : 
+        <>
+          <CustomerInformation metadata={metadata} setMetadata={setMetadata} metadataComplete={metadataComplete} setMetadataComplete={setMetadataComplete}/>
+          <CheckoutButton lineItems={cart} metadata={metadata} disabled={!metadataComplete}/>
+        </>}
     </>)
 }

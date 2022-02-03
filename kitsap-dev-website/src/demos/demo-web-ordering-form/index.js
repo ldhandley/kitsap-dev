@@ -19,8 +19,6 @@ import ShareIcon from '@mui/icons-material/Share';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -32,6 +30,9 @@ import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import TextField from '@mui/material/TextField';
 import Snackbar from '@mui/material/Snackbar';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import { format, add } from 'date-fns'
 
 /*  TODO:
   * When you add to order, some kind of Toast that alerts you that you can checkout below
@@ -322,6 +323,16 @@ function CustomerInformation(props){
     }
   }
 
+  const handleTimePicker = (value) => {
+      let metadata = {...props.metadata, pickupTime: value} 
+      props.setMetadata(metadata)
+      isMetadataComplete(metadata, delivery)
+  }
+
+  const calculatePickupTime = (minutesTillPickup) => {
+    return format(add(new Date(), {minutes: minutesTillPickup}), "h:mmaaa")
+  }
+
   return(
     <>
       <div style={{padding:10}}/>
@@ -336,8 +347,39 @@ function CustomerInformation(props){
               <FormControlLabel value="Delivery" control={<Radio />} label="Delivery" />
               <FormControlLabel value="Pickup" control={<Radio />} label="Pickup" />
             </RadioGroup>
+            <div style={{padding: 10}}/>
           </FormControl>
       <div>
+        {!delivery? 
+          <>  
+            <Grid container spacing={2}>
+              <Grid item xs={3}>
+                <FormControl variant="standard" sx={{ width:"100%" }}>
+                  <InputLabel>How Long Until Pickup?</InputLabel>
+                  <Select
+                    value={props.metadata.minutesTillPickup || 30}
+                    label="Pickup in X Minutes"
+                    onChange={fieldChanged("minutesTillPickup")}
+                  >
+                    <MenuItem value={30}>30 minutes</MenuItem>
+                    <MenuItem value={45}>45 minutes</MenuItem>
+                    <MenuItem value={60}>1 hour</MenuItem>
+                    <MenuItem value={75}>1 hour 15 minutes</MenuItem>
+                    <MenuItem value={90}>1 hour 30 minutes</MenuItem>
+                    <MenuItem value={105}>1 hour 45 minutes</MenuItem>
+                    <MenuItem value={120}>2 hours</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={3}>
+                <p>Pickup at: <b>{calculatePickupTime(props.metadata.minutesTillPickup)}</b></p>
+              </Grid>
+              <Grid item xs={6}>
+              </Grid>
+            </Grid>
+            <div style={{padding: 10}}/>
+          </>
+            : ""}
         <FormControl style={{width:"100%"}}>
             <TextField
               id="customer-name-field"
@@ -396,7 +438,7 @@ function CustomerInformation(props){
 
 export function OrderForm(){
   const [cart, setCart] = useState([]);
-  const [metadata, setMetadata] = useState({});
+  const [metadata, setMetadata] = useState({minutesTillPickup:30});
   const [metadataComplete, setMetadataComplete] = useState(false);
 
   function addToCart(item){

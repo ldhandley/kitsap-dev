@@ -199,7 +199,7 @@ function CartLineItem(props){
   return(
     <>
       <div>
-        <Grid container spacing={2} alignItems="center">
+        <Grid container spacing={2} alignItems="center" className="cart-line-item">
           <Grid item xs={1}>
             <img src={props.image} width="100%"/>
           </Grid>

@@ -1,7 +1,15 @@
+import * as React from 'react';
+import { styled } from '@mui/material/styles';
+import { useState, useEffect } from 'react';
 import {OrderForm} from "./demos/demo-web-ordering-form" 
 import {Page} from "./Components/Page"
 import {Link} from "react-router-dom"
 import Alert from '@mui/material/Alert';
+import Card from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
+import CardMedia from '@mui/material/CardMedia';
+import Typography from '@mui/material/Typography';
+import CardContent from '@mui/material/CardContent';
 
 export function WebOrderingFormDemo(){
   return(
@@ -37,16 +45,43 @@ export function WebOrderingFormSuccessPageDemo(){
   )
 }
 
+function LinkCard(props){
+  const [elevation,setElevation] = useState(1);
+
+  function onMouseEnter(){
+    setElevation(4)
+  }
+  
+  function onMouseLeave(){
+    setElevation(1)
+  }
+
+  return(
+    <Link to="/demos/web-ordering-form" style={{textDecoration: "none"}}>
+      <Card sx={{ maxWidth: 345, marginTop: 3 }} elevation={elevation} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+        <CardMedia
+          component="img"
+          height="194"
+          image="/demo-images/pepperoni-pizza.jpeg"
+          alt="Pepperoni Pizza"
+        />
+        <CardContent>
+          <Typography variant="h5">
+            Pizzeria Point of Sale
+          </Typography>
+        </CardContent>
+      </Card>
+    </Link>
+  )
+}
+
 export function Demos(){
 
 
   return(
     <>
       <Page title="Demos">
-        <h2>Point of Sale Demo</h2>
-        <Link to="/demos/web-ordering-form">
-          Web Ordering Form Demo
-        </Link>
+        <LinkCard/>
       </Page>
     </>
   )

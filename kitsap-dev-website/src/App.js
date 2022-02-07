@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
@@ -15,11 +16,12 @@ import InputAdornment from '@mui/material/InputAdornment';
 import {
   BrowserRouter,
   Routes,
-  Route
+  Route,
+  useNavigate
 } from "react-router-dom";
 import {Demos, WebOrderingFormDemo, WebOrderingFormCancelPageDemo, WebOrderingFormSuccessPageDemo} from "./Demos";
 import {bannerBackgroundColor, h2TagColor, jumbotronContrastingColor} from "./theme"
-
+import { HamburgerMenu } from "./Components/Page"
 
 function TechLogo(props) {
   // Mouseover effect / tooltip for people to investigate/play with logos
@@ -194,6 +196,7 @@ function Homepage() {
   
   return (
     <div className="">
+      <HamburgerMenu/>
       <Container style={{ width: "100%", maxWidth: "100%", position: "relative" }}>
         <Box sx={{ height: '40vh', backgroundColor:bannerBackgroundColor, backgroundPosition: "center", backgroundSize: "cover", height: "80vh", minHeight: "500px" }} />
         <div style={{ textAlign: "center", display: "inline-block", color: "black", zIndex: 10, width: "100%", position: "absolute", top: "50%", MsTransform: "translateY(-50%)", transform: "translateY(-50%)", left: 0 }}>

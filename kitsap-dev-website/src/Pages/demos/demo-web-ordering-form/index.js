@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import { useState, useEffect } from 'react';
+import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
@@ -84,6 +85,8 @@ function lookupStripePriceByName(n){
       return 'price_0KMgyf7hDggklt0HcdYom3RF';
     case "Pepperoni Pizza - 18 inches":
       return 'price_0KMh7M7hDggklt0HmC25Dx6T';
+    case "Garlic Breadsticks":
+      return 'price_0KR2dU7hDggklt0HnGrAmCgW';
   }
 }
 
@@ -118,7 +121,58 @@ function QuantitySelector(props) {
     </ButtonGroup>
   );
 }
+ 
+function SimpleMenuItemCard(props){
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const name = "Garlic Breadsticks"
+  const price = () => {
+    return 8.99
+  } 
   
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSnackbarOpen(false);
+  };
+
+  return(
+    <Card sx={{ maxWidth: 345 }}>
+      <CardMedia
+        component="img"
+        height="194"
+        image="/demo-images/breadsticks.jpg"
+        alt="Garlic Breadsticks"
+      />
+      <CardContent>
+        <Typography variant="h6">{name}</Typography>
+        <Typography variant="body2" color="text.secondary">
+          These garlic breadsticks hit the spot!
+        </Typography>
+      </CardContent>
+      <CardActions disableSpacing>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+          </Grid>
+          <Grid item xs={6}>
+            <Button variant="text" onClick={()=>{
+              props.addToCart({name: name, price: price(), image: "/demo-images/breadsticks.jpg"})
+              setSnackbarOpen(true) 
+            }}><ShoppingCartIcon/> Add to Order</Button>
+            <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleClose}>
+              <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                You've ordered an item! Scroll down when ready.
+              </Alert>
+            </Snackbar>
+          </Grid>
+        </Grid>
+      </CardActions>
+    </Card>
+  )
+}
+
+
 function MenuItemCard(props){
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const name = "Pepperoni Pizza"
@@ -473,8 +527,11 @@ export function OrderForm(){
 
   return(
     <>
-      <MenuItemCard addToCart={addToCart}/> 
-      <Cart lineItems={cart} addByName={addByName} removeByName={removeByName}/>
+      <Stack spacing={2} direction="row">
+        <MenuItemCard addToCart={addToCart}/> 
+        <SimpleMenuItemCard addToCart={addToCart}/> 
+      </Stack>
+        <Cart lineItems={cart} addByName={addByName} removeByName={removeByName}/>
       {cart.length === 0? "" : 
         <>
           <CustomerInformation metadata={metadata} setMetadata={setMetadata} metadataComplete={metadataComplete} setMetadataComplete={setMetadataComplete}/>

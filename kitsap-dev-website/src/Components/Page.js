@@ -8,6 +8,29 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
+import Card from '@mui/material/Card';
+import { useState, useEffect } from 'react';
+import {Link} from "react-router-dom"
+
+export function LinkCard(props){
+  const [elevation,setElevation] = useState(1);
+
+  function onMouseEnter(){
+    setElevation(4)
+  }
+  
+  function onMouseLeave(){
+    setElevation(1)
+  }
+
+  return(
+    <Link to={props.link} style={{textDecoration: "none"}}>
+      <Card sx={{ maxWidth: 345, marginTop: 3 }} elevation={elevation} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+        {props.children}
+      </Card>
+    </Link>
+  )
+}
 
 export function HamburgerMenu(props) {
   let navigate = useNavigate();
@@ -43,6 +66,7 @@ export function Page(props){
         </Box>
       </Container>
       <Container maxWidth="md">
+        <div style={{padding: 20}}/>
         {props.children}
         <div style={{padding:100}}/>
       </Container>

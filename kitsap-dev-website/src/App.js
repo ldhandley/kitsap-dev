@@ -19,9 +19,11 @@ import {
   Route,
   useNavigate
 } from "react-router-dom";
-import {Demos, WebOrderingFormDemo, WebOrderingFormCancelPageDemo, WebOrderingFormSuccessPageDemo} from "./Demos";
+import {Demos, WebOrderingFormDemo, WebOrderingFormCancelPageDemo, WebOrderingFormSuccessPageDemo} from "./Pages/Demos";
+import {Blog} from "./Pages/Blog"
 import {bannerBackgroundColor, h2TagColor, jumbotronContrastingColor} from "./theme"
 import { HamburgerMenu } from "./Components/Page"
+import {POSBlogPost} from "./Pages/blog/POSBlogPost"
 
 function TechLogo(props) {
   // Mouseover effect / tooltip for people to investigate/play with logos
@@ -221,6 +223,8 @@ function App(){
       <Routes>
         <Route path="/" element={<Homepage />}/>
         <Route path="/demos" element={<Demos />}/>
+        <Route path="/blog" element={<Blog />}/>
+        <Route path="/blog/lets-make-a-point-of-sale-for-a-restaurant" element={<POSBlogPost />}/>
         <Route path="/demos/web-ordering-form" element={<WebOrderingFormDemo />}/>
         <Route path="/demos/web-ordering-form/success" element={<WebOrderingFormSuccessPageDemo/>}/>
         <Route path="/demos/web-ordering-form/cancel" element={<WebOrderingFormCancelPageDemo/>}/>

@@ -8,7 +8,7 @@ import {within} from '@testing-library/dom'
 
 test('Cart appears when you add a line item to order', () => {
   render(<OrderForm/>);
-  let button = screen.getByText('Add to Order')
+  let button = screen.getAllByText('Add to Order')[0]
   let cart = screen.queryByText("Delivery or Pickup?")
   expect(cart).not.toBeInTheDocument()
   expect(button).toBeInTheDocument()

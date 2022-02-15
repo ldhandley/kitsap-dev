@@ -33,6 +33,11 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { format, add } from 'date-fns'
 
+export function SimpleComponent(){
+  const [text, setText] = useState("Hello")
+  return(<p>{text}</p>)
+}
+
 function userInputLooksLikeName(n){
   if(!n) 
     return {valid: false, errors: ["Name must be provided."]}
@@ -175,7 +180,7 @@ export function MultiVariantMenuItemCard(props){
               style={{height: 35}}
             >
               {props.variants.map(e=>{
-                return <MenuItem value={e[0]}>{e[0]}</MenuItem>
+                return <MenuItem key={e[0]} value={e[0]}>{e[0]}</MenuItem>
               })}
             </Select>
           </Grid>

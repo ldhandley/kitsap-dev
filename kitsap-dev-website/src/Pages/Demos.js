@@ -8,6 +8,7 @@ import CardHeader from '@mui/material/CardHeader';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import CardContent from '@mui/material/CardContent';
+import {SimpleComponent} from 'pos-react';
 
 export function WebOrderingFormDemo(){
   return(
@@ -49,6 +50,7 @@ export function Demos(){
   return(
     <>
       <Page title="Demos">
+        <SimpleComponent/>
         <LinkCard link="/demos/web-ordering-form">
           <CardMedia
             component="img"
@@ -61,7 +63,6 @@ export function Demos(){
               Pizzeria Point of Sale
             </Typography>
           </CardContent>
-
         </LinkCard>
       </Page>
     </>

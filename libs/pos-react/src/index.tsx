@@ -7,6 +7,7 @@ import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Collapse from '@mui/material/Collapse';
+import Chip from '@mui/material/Chip';
 import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
@@ -186,7 +187,7 @@ export function MultiVariantMenuItemCard(props){
           </Grid>
           <Grid item xs={6}>
             <Button variant="text" onClick={()=>{
-              props.addToCart({name: props.name + " - " + selectedVariant, price: props.variants.find((e)=>e[0]==selectedVariant)[1], image: props.name})
+              props.addToCart({name: props.name + " - " + selectedVariant, price: props.variants.find((e)=>e[0]==selectedVariant)[1], image: props.image})
               setSnackbarOpen(true) 
             }}><ShoppingCartIcon/> Add to Order</Button>
             <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleClose}>
@@ -210,7 +211,7 @@ function CartLineItem(props){
           <Grid item xs={1}>
             <img src={props.image} width="100%"/>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             {props.name}
           </Grid>
           <Grid item xs={3}>
@@ -220,6 +221,9 @@ function CartLineItem(props){
             />
           </Grid>
           <Grid item xs={3}>
+           {"$" + props.price * props.quantity} 
+          </Grid>
+          <Grid item xs={2}>
             <IconButton color="primary" aria-label="remove line item from cart" component="span"
               onClick={()=>props.removeByName(props.name, {all: true})}>
               <DeleteIcon /> 
@@ -232,21 +236,26 @@ function CartLineItem(props){
 }
 
 export function Cart(props){
+  
 
   return(
     <>
       {props.lineItems.length !== 0 ? 
         <>
-          <h2>Order</h2>
+          <h2>Order <Chip label={"Total: $" + props.lineItems.reduce((acc,current)=>{
+        console.log(current)
+        return current.price + acc
+      }, 0).toFixed(2)} color="success" />
+          </h2>
           <div>
-            {coalesce(props.lineItems).map((e:any)=>{
-              return <CartLineItem {...e} 
+          {coalesce(props.lineItems).map((e:any)=>{
+            return <CartLineItem {...e} 
                 key={e.name} 
                 addByName={props.addByName} 
                 removeByName={props.removeByName}/>
-            })}
+          })}
           </div>
-        </>
+      </>
         :""}
     </>
   )

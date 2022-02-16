@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
@@ -207,23 +208,25 @@ function CartLineItem(props){
   return(
     <>
       <div>
-        <Grid container spacing={2} alignItems="center" className="cart-line-item">
-          <Grid item xs={1}>
-            <img src={props.image} width="100%"/>
-          </Grid>
-          <Grid item xs={3}>
+        <Grid container spacing={2} alignItems="center" justifyItems="center" className="cart-line-item">
+          <Box sx={{ display: { xs: 'none', sm: 'block' } >
+            <Grid item sm={2} >
+              <img src={props.image} width="100%"/>
+            </Grid>
+          </Box>
+          <Grid item xs={4} sm={4}>
             {props.name}
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={4} sm={4}>
             <QuantitySelector quantity={props.quantity} 
               onPlusClicked={()=>props.addByName(props.name)}
               onMinusClicked={()=>props.removeByName(props.name)}
             />
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={1} sm={2}>
            {"$" + props.price * props.quantity} 
           </Grid>
-          <Grid item xs={2}>
+          <Grid item xs={1} sm={2}>
             <IconButton color="primary" aria-label="remove line item from cart" component="span"
               onClick={()=>props.removeByName(props.name, {all: true})}>
               <DeleteIcon /> 

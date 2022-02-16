@@ -58,18 +58,19 @@ export function HamburgerMenu(props) {
 export function Page(props){
 
   return(
-    <div className="">
+    <>
       <HamburgerMenu/>
-      <Container style={{ width: "100%", maxWidth: "100%", position: "relative" }}>
+      <Container style={{ maxWidth: "100%", position: "relative" }}>
         <Box sx={{ backgroundColor:bannerBackgroundColor, backgroundPosition: "center", backgroundSize: "cover" }}>
           <h1 style={{color: jumbotronContrastingColor, margin: 0, marginLeft: 60, padding: 10 }}>{props.title}</h1>
         </Box>
       </Container>
-      <Container maxWidth="md">
-        <div style={{padding: 20}}/>
-        {props.children}
+      <Container maxWidth="md" >
+        <div style={{margin:20}}>
+          {props.children}
+        </div>
         <div style={{padding:100}}/>
       </Container>
-    </div>
+    </>
   )
 }

@@ -49,7 +49,7 @@ export function OrderForm(){
 
   return(
     <>
-      <Stack spacing={2} direction="row">
+      <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
         <MultiVariantMenuItemCard 
           name={"Pepperoni Pizza"} 
           variationName={"Size of Pizza"} 

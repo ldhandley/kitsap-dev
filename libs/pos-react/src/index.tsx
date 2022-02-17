@@ -36,8 +36,12 @@ import MenuItem from '@mui/material/MenuItem';
 import { format, add } from 'date-fns'
 
 export function SimpleComponent(){
-  const [text, setText] = useState("Hello")
-  return(<p>{text}</p>)
+  const [text, setText] = useState("Goodbye...")
+
+  function handleClick(e){
+    setText("Hello")    
+  }
+  return(<p onClick={handleClick}>{text}</p>)
 }
 
 function userInputLooksLikeName(n){
@@ -129,7 +133,7 @@ export function MenuItemCard(props){
             <Button variant="text" onClick={()=>{
               props.addToCart({name: props.name, price: props.price, image: props.image})
               setSnackbarOpen(true) 
-            }}><ShoppingCartIcon/> Add to Order</Button>
+            }}><ShoppingCartIcon/> Add 2 Order</Button>
             <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleClose}>
               <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
                 You've ordered an item! Scroll down when ready.
@@ -209,7 +213,7 @@ function CartLineItem(props){
     <>
       <div>
         <Grid container spacing={2} alignItems="center" justifyItems="center" className="cart-line-item">
-          <Box sx={{ display: { xs: 'none', sm: 'block' } >
+          <Box sx={{ display: { xs: 'none', sm: 'block' }}}>
             <Grid item sm={2} >
               <img src={props.image} width="100%"/>
             </Grid>
